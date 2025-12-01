@@ -1,47 +1,46 @@
-f = open("inputSmall.txt")
-data = []
+input_file_path = "input.txt"
 
-RED = '\033[91m'   # Jasnoczerwony
-END = '\033[0m'    # Resetowanie koloru
+try:
+    with open(input_file_path, 'r') as f:
+        # Wczytanie rotacji, ignorując puste linie
+        rotations = [line.strip() for line in f.readlines() if line.strip()]
+except FileNotFoundError:
+    print(f"Błąd: Nie znaleziono pliku {input_file_path}. Upewnij się, że plik jest w tym samym katalogu.")
 
-for i in f:
-    data.append(i.rstrip().split())
 
-startPosition = 50
-zeroPointer = 0
+current_pos = 50 
+zero_count = 0    
 
-currentPosition = startPosition
-rotates = 0
+for rotation in rotations:
+    direction = rotation[0]
+    try:
+        distance = int(rotation[1:])
+    except ValueError:
+        continue
 
-for move in data:
-    if move[0][0] == 'R':
-        addition = int(move[0][1:])%100
+    if distance == 0:
+        continue
+
+    if direction == 'R':
+        k_0 = 100 - current_pos
+        if k_0 == 100:
+            k_0 = 100
         
-        if int(move[0][1:]) > 99:
-            rotates += int(move[0][1])
-        currentPosition += addition
-        if currentPosition > 99:
-            currentPosition = currentPosition - 100
-            rotates+=1
-        print("Current addition = ", addition, '\n' )
-        print("Current pos: ", currentPosition, '\n')
-    else:
-        subtraction = int(move[0][1:])%100
+        if distance >= k_0:
+            zero_count += 1 + (distance - k_0) // 100
+        
+        current_pos = (current_pos + distance) % 100
 
-        currentPosition -= subtraction
-        if currentPosition < 0:
-            currentPosition = currentPosition + 100
-            rotates+=1
-        print("Current subtraction = ", subtraction, '\n' )
-        print("Current pos: ", currentPosition, '\n')
-    
-    if currentPosition == 0:
-        zeroPointer+=1
-        print(f"{RED} ZERO FOUND!!! {END}")
+    elif direction == 'L':
+        k_0 = current_pos
+        if k_0 == 0:
+            k_0 = 100
+        
+        if distance >= k_0:
+            zero_count += 1 + (distance - k_0) // 100
+        
+        current_pos = (current_pos - distance) % 100
+        if current_pos < 0:
+            current_pos += 100
 
-
-print("Zero occured ", zeroPointer , " times.")
-print("Zero with rotates through zero: ", zeroPointer+rotates)
-
-
-
+print(f"Hasło (liczba razy, gdy tarcza wskazała na 0): {zero_count}")
